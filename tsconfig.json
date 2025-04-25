@@ -11,6 +11,7 @@
   },
   "include": [
     "agents/**/*",
+    "src/**/*",
     "index.ts"
   ],
   "exclude": [

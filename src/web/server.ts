@@ -2,11 +2,8 @@ import express from 'express';
 import path from 'path';
 import morgan from 'morgan';
 import { config } from 'dotenv';
-import { ServiceContainer } from '../agents/blogger/ServiceContainer';
-import { SupabaseService } from '../agents/blogger/SupabaseService';
-import { ConfigManager } from '../agents/blogger/ConfigManager';
-import { ErrorHandler } from '../agents/blogger/ErrorHandler';
-import { BloggerAgent } from '../agents/blogger/BloggerAgent';
+import { BloggerAgent } from '../../agents/blogger/BloggerAgent';
+import { BlogPost } from '../../agents/blogger/types/BlogPost';
 
 // Load environment variables
 config();
@@ -24,28 +21,16 @@ app.use(express.urlencoded({ extended: true }));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// Create service container and register services
-const container = new ServiceContainer();
-const configManager = new ConfigManager();
-container.register('configManager', configManager);
-
-const errorHandler = new ErrorHandler(null);
-container.register('errorHandler', errorHandler);
-
-const supabaseService = new SupabaseService(configManager);
-container.register('supabaseService', supabaseService);
-
-// Update error handler with Supabase service
-(errorHandler as any).supabaseService = supabaseService;
-
 // Create blogger agent
-const bloggerAgent = new BloggerAgent(container);
+const bloggerAgent = new BloggerAgent();
 
 // Routes
 app.get('/', async (req, res) => {
   try {
     // Get blog posts from database
-    const blogPosts = await supabaseService.select('blog_posts', '*', {});
+    // We'll need to access the supabaseService through the blogger agent
+    // For now, we'll just render an empty array
+    const blogPosts: BlogPost[] = [];
     
     res.render('index', { 
       title: 'Marvin Blogger Agent',
@@ -55,7 +40,7 @@ app.get('/', async (req, res) => {
     console.error('Error fetching blog posts:', error);
     res.render('index', { 
       title: 'Marvin Blogger Agent',
-      blogPosts: [],
+      blogPosts: [] as BlogPost[],
       error: 'Error fetching blog posts'
     });
   }
@@ -86,18 +71,10 @@ app.get('/view/:id', async (req, res) => {
     const { id } = req.params;
     
     // Get blog post from database
-    const [blogPost] = await supabaseService.select('blog_posts', '*', { id });
-    
-    if (!blogPost) {
-      return res.status(404).render('error', { 
-        title: 'Not Found',
-        message: 'Blog post not found'
-      });
-    }
-    
-    res.render('view', { 
-      title: blogPost.title,
-      blogPost
+    // For now, we'll just render a not found error
+    return res.status(404).render('error', { 
+      title: 'Not Found',
+      message: 'Blog post not found'
     });
   } catch (error) {
     console.error('Error fetching blog post:', error);

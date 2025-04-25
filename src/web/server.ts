@@ -4,6 +4,8 @@ import morgan from 'morgan';
 import { config } from 'dotenv';
 import { BloggerAgent } from '../../agents/blogger/BloggerAgent';
 import { BlogPost } from '../../agents/blogger/types/BlogPost';
+import { ServiceContainer } from '../../agents/blogger/ServiceContainer';
+import { SupabaseService } from '../../agents/blogger/SupabaseService';
 
 // Load environment variables
 config();
@@ -24,14 +26,14 @@ app.set('view engine', 'ejs');
 
 // Create blogger agent
 const bloggerAgent = new BloggerAgent();
+// Get the SupabaseService from the container that BloggerAgent created
+const supabaseService = bloggerAgent['container'].resolve<SupabaseService>('supabaseService');
 
 // Routes
 app.get('/', async (req, res) => {
   try {
     // Get blog posts from database
-    // We'll need to access the supabaseService through the blogger agent
-    // For now, we'll just render an empty array
-    const blogPosts: BlogPost[] = [];
+    const blogPosts = await supabaseService.select('blog_posts', '*');
     
     res.render('index', { 
       title: 'Marvin Blogger Agent',
@@ -72,10 +74,20 @@ app.get('/view/:id', async (req, res) => {
     const { id } = req.params;
     
     // Get blog post from database
-    // For now, we'll just render a not found error
-    return res.status(404).render('error', { 
-      title: 'Not Found',
-      message: 'Blog post not found'
+    const blogPosts = await supabaseService.select('blog_posts', '*', { match: { id } });
+    
+    if (blogPosts.length === 0) {
+      return res.status(404).render('error', { 
+        title: 'Not Found',
+        message: 'Blog post not found'
+      });
+    }
+    
+    const blogPost = blogPosts[0];
+    
+    res.render('view', { 
+      title: blogPost.title,
+      blogPost
     });
   } catch (error) {
     console.error('Error fetching blog post:', error);

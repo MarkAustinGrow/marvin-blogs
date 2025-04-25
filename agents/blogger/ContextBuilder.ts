@@ -78,10 +78,11 @@ export class ContextBuilder {
    */
   private async getLatestTweets(limit: number = 5): Promise<Tweet[]> {
     try {
+      // Use a simple query to get the latest tweets
       const tweets = await this.supabaseService.select(
         'tweets_cache',
         'id, tweet_id, tweet_text, tweet_url, created_at, vibe_tags',
-        { order: 'created_at.desc', limit }
+        { limit }
       );
       
       return tweets.map(tweet => ({
@@ -108,10 +109,11 @@ export class ContextBuilder {
    */
   private async getLatestImage(): Promise<BlogContext['image'] | undefined> {
     try {
+      // Use a simple query to get the latest image
       const images = await this.supabaseService.select(
         'images',
         'image_url, prompt_id, created_at',
-        { order: 'created_at.desc', limit: 1 }
+        { limit: 1 }
       );
       
       if (images.length === 0) {

@@ -31,10 +31,10 @@ export class ActivityLogger {
    * 
    * @param action The action that was performed
    * @param details Additional details about the activity
-   * @param category The category of the activity (default: 'blog')
+   * @param category The category of the activity (default: 'content')
    * @returns A promise that resolves when the activity has been logged
    */
-  async logActivity(action: string, details: Record<string, any>, category: string = 'blog'): Promise<void> {
+  async logActivity(action: string, details: Record<string, any>, category: string = 'content'): Promise<void> {
     try {
       await this.supabaseService.insert('activity_logs', {
         agent_name: this.agentName,
@@ -131,6 +131,6 @@ export class ActivityLogger {
       errorType,
       message,
       operation
-    }, 'error');
+    }, 'system');
   }
 }

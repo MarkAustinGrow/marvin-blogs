@@ -85,7 +85,7 @@ export class MetadataBuilder {
       const characters = await this.supabaseService.select(
         'character_files',
         'id',
-        { agent_name: 'marvin', is_active: true }
+        { match: { agent_name: 'marvin', is_active: true } }
       );
       
       if (characters.length > 0) {

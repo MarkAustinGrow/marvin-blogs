@@ -69,16 +69,32 @@ export class SupabaseService {
    * 
    * @param table The table to select data from
    * @param columns The columns to select
-   * @param match The conditions to match for the select
+   * @param options Optional parameters like match conditions, order, and limit
    * @returns A promise that resolves to the selected data
    */
-  async select(table: string, columns: string = '*', match?: Record<string, any>): Promise<any[]> {
+  async select(
+    table: string, 
+    columns: string = '*', 
+    options?: { 
+      match?: Record<string, any>, 
+      order?: string, 
+      limit?: number 
+    }
+  ): Promise<any[]> {
     let query = this.client
       .from(table)
       .select(columns);
     
-    if (match) {
-      query = query.match(match);
+    if (options?.match) {
+      query = query.match(options.match);
+    }
+    
+    if (options?.order) {
+      query = query.order(options.order);
+    }
+    
+    if (options?.limit) {
+      query = query.limit(options.limit);
     }
     
     const { data, error } = await query;

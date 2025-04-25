@@ -14,7 +14,6 @@ export class ActivityLogger {
   private configManager: ConfigManager;
   private errorHandler: ErrorHandler;
   private agentName: string = 'blogger';
-  private version: number = 1;
   
   /**
    * Create a new ActivityLogger instance
@@ -41,8 +40,7 @@ export class ActivityLogger {
         agent_name: this.agentName,
         action,
         category,
-        details,
-        version: this.version
+        details
       });
       
       console.log(`Activity logged: ${action}`);

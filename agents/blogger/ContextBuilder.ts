@@ -126,7 +126,7 @@ export class ContextBuilder {
         const prompts = await this.supabaseService.select(
           'prompts',
           'text',
-          { id: image.prompt_id }
+          { match: { id: image.prompt_id } }
         );
         
         if (prompts.length > 0) {
@@ -158,7 +158,7 @@ export class ContextBuilder {
       const characters = await this.supabaseService.select(
         'character_files',
         'content',
-        { agent_name: 'marvin', is_active: true }
+        { match: { agent_name: 'marvin', is_active: true } }
       );
       
       if (characters.length === 0) {

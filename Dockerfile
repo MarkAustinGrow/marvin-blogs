@@ -5,9 +5,9 @@ RUN apk add --no-cache curl
 
 WORKDIR /app
 
-# Copy package files and install dependencies
+# Copy package files and install dependencies (including dev dependencies for build)
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --include=dev
 
 # Copy application code
 COPY . .

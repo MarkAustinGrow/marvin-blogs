@@ -1,0 +1,56 @@
+name: Deploy to Linode
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/markausingrow/marvin-blogs:latest
+      
+      - name: Deploy to Linode
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.LINODE_HOST }}
+          username: ${{ secrets.LINODE_USERNAME }}
+          key: ${{ secrets.LINODE_SSH_KEY }}
+          script: |
+            mkdir -p /opt/marvin-blogs/logs
+            cd /opt/marvin-blogs
+            
+            # Create or update docker-compose.yml
+            cat > docker-compose.yml << 'EOL'
+            version: '3.8'
+            
+            services:
+              marvin-blogger:
+                image: ghcr.io/markausingrow/marvin-blogs:latest
+                restart: always
+                env_file: .env
+                volumes:
+                  - ./logs:/app/logs
+            EOL
+            
+            # Pull the latest image and restart the container
+            docker-compose pull
+            docker-compose up -d

@@ -1,0 +1,7 @@
+column_name,data_type,is_nullable,column_default
+id,uuid,NO,uuid_generate_v4()
+track_name,character varying,NO,null
+positive,integer,YES,0
+neutral,integer,YES,0
+negative,integer,YES,0
+date,date,YES,CURRENT_DATE

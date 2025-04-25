@@ -1,0 +1,13 @@
+column_name,data_type,is_nullable,column_default
+id,integer,NO,nextval('tweets_cache_id_seq'::regclass)
+account_id,integer,YES,null
+tweet_id,text,NO,null
+tweet_text,text,YES,null
+tweet_url,text,YES,null
+created_at,timestamp without time zone,YES,null
+fetched_at,timestamp without time zone,YES,now()
+engagement_score,real,YES,null
+summary,text,YES,null
+vibe_tags,ARRAY,YES,null
+embedding_vector,USER-DEFINED,YES,null
+processed_at,timestamp without time zone,YES,null

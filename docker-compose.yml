@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  marvin-blogger:
+    build: .
+    restart: always
+    env_file: .env
+    volumes:
+      - ./logs:/app/logs

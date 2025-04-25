@@ -1,0 +1,12 @@
+column_name,data_type,is_nullable,column_default
+id,uuid,NO,uuid_generate_v4()
+title,character varying,NO,null
+description,text,YES,null
+assigned_to,character varying,NO,null
+priority,character varying,YES,'Medium'::character varying
+status,character varying,YES,'pending'::character varying
+created_at,timestamp with time zone,YES,now()
+updated_at,timestamp with time zone,YES,now()
+assigned_to_uuid,uuid,YES,null
+metadata,jsonb,YES,null
+proposal_id,uuid,YES,null

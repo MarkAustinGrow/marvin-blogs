@@ -1,0 +1,101 @@
+table_name,column_name,data_type,is_nullable,column_default
+accounts_to_review,id,integer,NO,nextval('accounts_to_review_id_seq'::regclass)
+accounts_to_review,handle,text,NO,null
+accounts_to_review,error_message,text,YES,null
+accounts_to_review,error_code,text,YES,null
+accounts_to_review,created_at,timestamp without time zone,YES,now()
+accounts_to_review,status,text,YES,'pending'::text
+accounts_to_review,notes,text,YES,null
+activity_logs,id,uuid,NO,uuid_generate_v4()
+activity_logs,agent_id,character varying,YES,null
+activity_logs,agent_name,character varying,NO,null
+activity_logs,agent_avatar,character varying,YES,'/placeholder.svg?height=32&width=32'::character varying
+activity_logs,action,text,NO,null
+activity_logs,details,text,YES,null
+activity_logs,category,character varying,YES,null
+activity_logs,timestamp,timestamp with time zone,YES,now()
+agents,id,uuid,NO,uuid_generate_v4()
+agents,name,character varying,NO,null
+agents,role,character varying,NO,null
+agents,avatar_url,character varying,YES,'/placeholder.svg?height=80&width=80'::character varying
+agents,model,character varying,YES,'gpt-4o'::character varying
+agents,description,text,YES,null
+agents,notifications_enabled,boolean,YES,false
+agents,auto_assign,boolean,YES,true
+agents,status,character varying,YES,'Inactive'::character varying
+agents,current_task,text,YES,null
+agents,progress,integer,YES,0
+agents,created_at,timestamp with time zone,YES,now()
+agents,updated_at,timestamp with time zone,YES,now()
+angus_logs,id,integer,NO,nextval('angus_logs_id_seq'::regclass)
+angus_logs,timestamp,timestamp with time zone,YES,now()
+angus_logs,level,text,YES,null
+angus_logs,source,text,YES,null
+angus_logs,message,text,YES,null
+angus_logs,details,jsonb,YES,null
+character_files,id,uuid,NO,uuid_generate_v4()
+character_files,agent_name,text,NO,null
+character_files,display_name,text,NO,null
+character_files,content,jsonb,NO,null
+character_files,version,integer,NO,1
+character_files,is_active,boolean,NO,true
+character_files,created_at,timestamp with time zone,YES,now()
+character_files,updated_at,timestamp with time zone,YES,now()
+clip_usages,id,uuid,NO,uuid_generate_v4()
+clip_usages,song_id,uuid,YES,null
+clip_usages,clip_id,uuid,YES,null
+clip_usages,order_index,integer,YES,null
+clip_usages,used_at,timestamp without time zone,YES,now()
+engagement_metrics,id,uuid,NO,uuid_generate_v4()
+engagement_metrics,date,date,NO,null
+engagement_metrics,views,integer,YES,0
+engagement_metrics,likes,integer,YES,0
+engagement_metrics,comments,integer,YES,0
+engagement_metrics,platform,character varying,YES,null
+engagement_metrics,created_at,timestamp with time zone,YES,now()
+feedback,id,uuid,NO,uuid_generate_v4()
+feedback,song_id,uuid,YES,null
+feedback,rating,integer,YES,null
+feedback,comments,text,YES,null
+feedback,created_at,timestamp with time zone,YES,now()
+feedback,comment_id,text,YES,null
+images,id,uuid,NO,gen_random_uuid()
+images,prompt_id,uuid,YES,null
+images,api_used,text,NO,null
+images,image_url,text,NO,null
+images,local_path,text,YES,null
+images,settings,jsonb,NO,null
+images,created_at,timestamp with time zone,YES,now()
+images,generation_type,character varying,NO,'auto'::character varying
+images,storage_path,character varying,YES,null
+images,dalle_url,text,YES,null
+influence_music,id,uuid,NO,uuid_generate_v4()
+influence_music,song_id,uuid,YES,null
+influence_music,url,text,NO,null
+influence_music,analysis,jsonb,NO,null
+influence_music,created_at,timestamp with time zone,YES,now()
+marvin_art_logs,id,uuid,NO,uuid_generate_v4()
+marvin_art_logs,level,character varying,NO,null
+marvin_art_logs,message,text,NO,null
+marvin_art_logs,source,character varying,NO,null
+marvin_art_logs,created_at,timestamp with time zone,YES,now()
+marvin_art_logs,metadata,jsonb,YES,null
+personas,id,uuid,NO,uuid_generate_v4()
+personas,external_id,text,NO,null
+personas,name,text,NO,null
+personas,description,text,YES,null
+personas,created_at,timestamp with time zone,YES,now()
+platform_distribution,id,uuid,NO,uuid_generate_v4()
+platform_distribution,platform_name,character varying,NO,null
+platform_distribution,percentage,integer,NO,null
+platform_distribution,date,date,YES,CURRENT_DATE
+processed_comments,id,integer,NO,nextval('processed_comments_id_seq'::regclass)
+processed_comments,comment_id,text,YES,null
+processed_comments,video_id,text,YES,null
+processed_comments,processed_at,timestamp with time zone,YES,now()
+prompts,id,uuid,NO,gen_random_uuid()
+prompts,text,text,NO,null
+prompts,character_id,uuid,YES,null
+prompts,created_at,timestamp with time zone,YES,now()
+proposals,id,uuid,NO,uuid_generate_v4()
+proposals,title,character varying,NO,null

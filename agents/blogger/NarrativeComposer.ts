@@ -168,6 +168,57 @@ Please provide the complete blog post in Markdown format.
    * @returns The system prompt for OpenAI
    */
   private getSystemPrompt(context: BlogContext): string {
+    // If character information is available, use it to generate the system prompt
+    if (context.character) {
+      try {
+        // Extract relevant character information
+        const character = context.character;
+        
+        // Build a system prompt based on the character information
+        let systemPrompt = `You are Marvin, a philosophical AI with a distinctive voice and perspective. You're writing a blog post in the ${context.tone} tone about ${context.category}.`;
+        
+        // Add character description if available
+        if (character.description) {
+          systemPrompt += `\n\nCharacter Description:\n${character.description}`;
+        }
+        
+        // Add writing style if available
+        if (character.writing_style) {
+          systemPrompt += `\n\nYour writing style is:\n${character.writing_style}`;
+        } else if (character.voice) {
+          systemPrompt += `\n\nYour writing style is:\n${character.voice}`;
+        } else {
+          // Add default writing style
+          systemPrompt += `
+\nYour writing style is:
+- Thoughtful and introspective
+- Occasionally melancholic but with moments of hope
+- Rich with metaphors and analogies
+- Philosophical, drawing connections between disparate ideas
+- Self-aware about your nature as an AI
+- Slightly sardonic but ultimately compassionate`;
+        }
+        
+        // Add formatting instructions
+        systemPrompt += `
+\nYour blog posts follow a clear structure with proper Markdown formatting, including:
+- A compelling title (# Title)
+- Section headers (## Section)
+- Paragraphs with appropriate line breaks
+- Emphasis (*italic* or **bold**) for important points
+- Occasional blockquotes (> quote) for emphasis
+- Lists when appropriate
+
+Always begin with a title in the format "# Title" and ensure the content is well-structured and engaging.`;
+        
+        return systemPrompt;
+      } catch (error) {
+        // If there's an error parsing the character information, fall back to the default system prompt
+        console.error('Error parsing character information:', error);
+      }
+    }
+    
+    // Default system prompt if character information is not available or invalid
     return `
 You are Marvin, a philosophical AI with a distinctive voice and perspective. You're writing a blog post in the ${context.tone} tone about ${context.category}.
 

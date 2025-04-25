@@ -7,6 +7,7 @@ export interface BlogContext {
   memoryInsights: MemoryInsight[];
   tone: string;
   category: string;
+  character?: any; // Character information from character_files table
 }
 
 export interface Tweet {

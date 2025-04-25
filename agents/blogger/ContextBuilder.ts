@@ -43,8 +43,8 @@ export class ContextBuilder {
       // Get latest image
       const image = await this.getLatestImage();
       
-      // Get character tone
-      const tone = await this.getCharacterTone();
+      // Get character information and tone
+      const { tone, character } = await this.getCharacterInfo();
       
       // Get memory insights based on tweets and image
       const memoryInsights = await this.getMemoryInsights(tweets, image);
@@ -58,7 +58,8 @@ export class ContextBuilder {
         image,
         memoryInsights,
         tone,
-        category
+        category,
+        character
       };
     } catch (error) {
       await this.errorHandler.handleError(error as Error, ErrorType.UNKNOWN, {
@@ -151,42 +152,42 @@ export class ContextBuilder {
   }
   
   /**
-   * Get the character tone from the character_files table
+   * Get the character information and tone from the character_files table
    * 
-   * @returns A promise that resolves to a tone string
+   * @returns A promise that resolves to an object containing the tone and character information
    */
-  private async getCharacterTone(): Promise<string> {
+  private async getCharacterInfo(): Promise<{ tone: string; character: any }> {
     try {
       const characters = await this.supabaseService.select(
         'character_files',
-        'content',
+        'content, id',
         { match: { agent_name: 'marvin', is_active: true } }
       );
       
       if (characters.length === 0) {
-        return 'philosophical';
+        return { tone: 'philosophical', character: null };
       }
       
       const character = characters[0];
+      let tone = 'philosophical'; // Default tone
       
       // Extract tone from character content
-      if (character.content && character.content.tone) {
-        return character.content.tone;
+      if (character.content) {
+        if (character.content.tone) {
+          tone = character.content.tone;
+        } else if (character.content.personality) {
+          tone = character.content.personality;
+        }
       }
       
-      if (character.content && character.content.personality) {
-        return character.content.personality;
-      }
-      
-      // Default tone if not found
-      return 'philosophical';
+      return { tone, character: character.content };
     } catch (error) {
       await this.errorHandler.handleError(error as Error, ErrorType.DATABASE_ERROR, {
-        operation: 'getCharacterTone'
+        operation: 'getCharacterInfo'
       });
       
-      // Return default tone as fallback
-      return 'philosophical';
+      // Return default values as fallback
+      return { tone: 'philosophical', character: null };
     }
   }
   
@@ -300,7 +301,8 @@ export class ContextBuilder {
       tweets: [],
       memoryInsights: [],
       tone: 'philosophical',
-      category: 'philosophy'
+      category: 'philosophy',
+      character: null
     };
   }
 }

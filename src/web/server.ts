@@ -18,7 +18,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Set up view engine
-app.set('views', path.join(__dirname, 'views'));
+// Point to the original views directory since the compiled JS is in dist/src/web
+app.set('views', path.join(__dirname, '../../../src/web/views'));
 app.set('view engine', 'ejs');
 
 // Create blogger agent

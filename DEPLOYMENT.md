@@ -14,15 +14,13 @@ The following files have been created for deployment:
 
 - `Dockerfile`: Defines how to build the Docker image
 - `docker-compose.yml`: Defines the Docker service configuration
-- `.github/workflows/deploy.yml`: GitHub Actions workflow for CI/CD
+- `run.sh`: Script that runs both the web server and the scheduled job
 
 ## Manual Deployment Steps
 
-If you prefer to deploy manually without GitHub Actions:
-
 1. SSH into your Linode server:
    ```bash
-   ssh username@your-linode-ip
+   ssh root@blogs.marvn.club
    ```
 
 2. Install Docker and Docker Compose if not already installed:
@@ -42,7 +40,12 @@ If you prefer to deploy manually without GitHub Actions:
    cd /opt/marvin-blogs
    ```
 
-4. Create a `.env` file with your credentials:
+4. Clone the repository:
+   ```bash
+   git clone https://github.com/MarkAustinGrow/marvin-blogs.git .
+   ```
+
+5. Create a `.env` file with your credentials:
    ```bash
    cat > .env << 'EOL'
    SUPABASE_URL=your_supabase_url
@@ -58,51 +61,61 @@ If you prefer to deploy manually without GitHub Actions:
    EOL
    ```
 
-5. Clone the repository and build the Docker image:
+6. Edit the `.env` file to add your actual credentials:
    ```bash
-   git clone https://github.com/MarkAustinGrow/marvin-blogs.git .
+   nano .env
+   ```
+
+7. Build and start the Docker container:
+   ```bash
    docker-compose up -d
    ```
 
-## Automated Deployment with GitHub Actions
-
-To use the GitHub Actions workflow for automated deployments:
-
-1. Add the following secrets to your GitHub repository:
-   - `LINODE_HOST`: Your Linode server IP address
-   - `LINODE_USERNAME`: SSH username for your Linode server
-   - `LINODE_SSH_KEY`: Private SSH key for authentication
-
-2. Create the `.env` file on your Linode server:
+8. Check if the container is running:
    ```bash
-   mkdir -p /opt/marvin-blogs
+   docker ps
+   ```
+
+9. View the logs:
+   ```bash
+   docker-compose logs -f
+   ```
+
+## Accessing the Web Interface
+
+The web interface will be available at:
+```
+http://blogs.marvn.club:3000
+```
+
+You can use this interface to:
+- View all generated blog posts
+- Manually trigger new blog post generation
+- View individual blog posts with proper formatting
+
+## Updating the Deployment
+
+To update the deployment with the latest code:
+
+1. SSH into your Linode server:
+   ```bash
+   ssh root@blogs.marvn.club
+   ```
+
+2. Navigate to the deployment directory:
+   ```bash
    cd /opt/marvin-blogs
-   
-   cat > .env << 'EOL'
-   SUPABASE_URL=your_supabase_url
-   SUPABASE_KEY=your_supabase_key
-   QDRANT_HOST=your_qdrant_host
-   QDRANT_PORT=6333
-   OPENAI_API_KEY=your_openai_api_key
-   
-   # Optional WordPress credentials
-   # WORDPRESS_URL=your_wordpress_url
-   # WORDPRESS_USERNAME=your_wordpress_username
-   # WORDPRESS_PASSWORD=your_wordpress_password
-   EOL
    ```
 
-3. Push changes to the `main` branch of your GitHub repository:
+3. Pull the latest code:
    ```bash
-   git add .
-   git commit -m "Initial deployment setup"
-   git push origin main
+   git pull
    ```
 
-4. The GitHub Actions workflow will automatically:
-   - Build the Docker image
-   - Push it to GitHub Container Registry
-   - Deploy it to your Linode server
+4. Rebuild and restart the container:
+   ```bash
+   docker-compose up -d --build
+   ```
 
 ## Monitoring Logs
 
@@ -113,20 +126,20 @@ cd /opt/marvin-blogs
 docker-compose logs -f
 ```
 
-To check the cron job logs specifically:
+To check the application logs specifically:
 
 ```bash
 cd /opt/marvin-blogs
-cat logs/cron.log
+cat logs/app.log
 ```
 
 ## Scheduling
 
-The Marvin Blogger Agent is configured to run twice a day:
-- 9:00 AM
-- 3:00 PM
+The Marvin Blogger Agent is configured to run:
+- Immediately when the container starts
+- Every 6 hours after that
 
-These times are based on the server's timezone. If you need to change the schedule, modify the cron job in the Dockerfile and rebuild the image.
+These times are based on the server's timezone. If you need to change the schedule, modify the `sleep 21600` value in the run.sh file and rebuild the container.
 
 ## Troubleshooting
 
@@ -137,16 +150,21 @@ If you encounter issues:
    docker-compose logs
    ```
 
-2. Check if the container is running:
+2. Check the container health:
    ```bash
-   docker ps
+   docker inspect --format='{{json .State.Health}}' marvin-blogger | jq
    ```
 
-3. Check the cron logs:
+3. Check the application logs:
    ```bash
-   cat logs/cron.log
+   cat logs/app.log
    ```
 
 4. Restart the container:
    ```bash
    docker-compose restart
+   ```
+
+5. Rebuild the container:
+   ```bash
+   docker-compose up -d --build

@@ -10,7 +10,8 @@
     "test:watch": "jest --watch",
     "test:integration": "cross-env ENABLE_INTEGRATION_TESTS=true jest tests/integration",
     "test:real-supabase": "cross-env USE_REAL_SUPABASE=true jest",
-    "db:migrate": "node db/run-migrations.js"
+    "db:migrate": "node db/run-migrations.js",
+    "web": "node dist/web/server.js"
   },
   "keywords": [
     "marvin",
@@ -22,6 +23,7 @@
   "license": "ISC",
   "description": "Automatically generate longform blog posts based on Marvin's tweets, art, memory, and cultural signals",
   "devDependencies": {
+    "@types/express": "^4.17.21",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.15.2",
     "cross-env": "^7.0.3",
@@ -32,6 +34,9 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4",
     "axios": "^1.9.0",
-    "dotenv": "^16.5.0"
+    "dotenv": "^16.5.0",
+    "ejs": "^3.1.9",
+    "express": "^4.19.2",
+    "morgan": "^1.10.0"
   }
 }

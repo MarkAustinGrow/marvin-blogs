@@ -1,13 +1,13 @@
 FROM node:18-alpine
 
-# Install cron
-RUN apk add --no-cache dcron
+# Install curl for health checks
+RUN apk add --no-cache curl
 
 WORKDIR /app
 
 # Copy package files and install dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy application code
 COPY . .
@@ -18,11 +18,19 @@ RUN npm run build
 # Create logs directory
 RUN mkdir -p /app/logs
 
-# Set up cron job to run twice a day (9 AM and 3 PM)
-RUN echo "0 9,15 * * * cd /app && node dist/index.js >> /app/logs/cron.log 2>&1" > /etc/crontabs/root
+# Make run.sh executable
+RUN chmod +x /app/run.sh
 
 # Set environment variables
 ENV NODE_ENV=production
+ENV PORT=3000
 
-# Start cron in the foreground
-CMD ["crond", "-f", "-d", "8"]
+# Expose the web server port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:3000/ || exit 1
+
+# Run the application
+CMD ["/bin/sh", "/app/run.sh"]

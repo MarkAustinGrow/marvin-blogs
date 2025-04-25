@@ -13,6 +13,16 @@ The Marvin Blogger Agent is a Node.js application that:
 5. Optionally publishes to WordPress
 6. Creates follow-up tweet drafts
 
+## Web Interface
+
+The application includes a web interface that allows you to:
+
+- View all generated blog posts
+- Manually trigger new blog post generation
+- View individual blog posts with proper formatting
+
+The web interface is accessible at `http://your-server:3000` after deployment.
+
 ## Project Structure
 
 ```
@@ -33,11 +43,19 @@ The Marvin Blogger Agent is a Node.js application that:
     ├── BlogContext.ts
     ├── BlogPost.ts
     └── TweetData.ts
+
+📁 /src/web/
+├── server.ts                ← Web server for the UI
+└── views/                   ← EJS templates for the UI
+    ├── index.ejs            ← Blog post listing page
+    ├── create.ejs           ← Page to trigger blog creation
+    ├── view.ejs             ← Blog post detail page
+    └── error.ejs            ← Error page
 ```
 
 ## Deployment
 
-This project is configured for deployment using Docker and GitHub Actions. For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
+This project is configured for deployment using Docker. For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ### Quick Start
 
@@ -56,10 +74,15 @@ The application requires the following environment variables:
 - `QDRANT_HOST` and `QDRANT_PORT`: For memory access
 - `OPENAI_API_KEY`: For content generation
 - `WORDPRESS_URL`, `WORDPRESS_USERNAME`, and `WORDPRESS_PASSWORD` (optional): For WordPress publishing
+- `PORT` (optional, default: 3000): Port for the web interface
 
 ## Scheduling
 
-The agent is configured to run twice a day (9 AM and 3 PM) to generate new blog posts.
+The agent is configured to run:
+- Immediately when the container starts
+- Every 6 hours after that
+
+You can also manually trigger blog post generation through the web interface.
 
 ## Development
 
@@ -76,6 +99,11 @@ The agent is configured to run twice a day (9 AM and 3 PM) to generate new blog 
 3. Run the application:
    ```bash
    npm start
+   ```
+
+4. Run the web server:
+   ```bash
+   npm run web
    ```
 
 ## Testing

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 20px;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    .create-btn {
+      background-color: #3498db;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .create-btn:hover {
+      background-color: #2980b9;
+    }
+    .blog-posts {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .blog-post {
+      border: 1px solid #eee;
+      border-radius: 5px;
+      padding: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+    .blog-post:hover {
+      transform: translateY(-5px);
+    }
+    .blog-post h2 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+    .blog-post-meta {
+      color: #7f8c8d;
+      font-size: 0.9em;
+      margin-bottom: 10px;
+    }
+    .blog-post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 15px;
+    }
+    .tag {
+      background-color: #f1f1f1;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 0.8em;
+    }
+    .view-link {
+      display: inline-block;
+      margin-top: 15px;
+      color: #3498db;
+      text-decoration: none;
+    }
+    .view-link:hover {
+      text-decoration: underline;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 50px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+    }
+    .error {
+      color: #e74c3c;
+      padding: 10px;
+      background-color: #fadbd8;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><%= title %></h1>
+    <a href="/create" class="create-btn">Create New Blog Post</a>
+  </header>
+  
+  <main>
+    <% if (typeof error !== 'undefined') { %>
+      <div class="error">
+        <%= error %>
+      </div>
+    <% } %>
+    
+    <% if (blogPosts.length === 0) { %>
+      <div class="empty-state">
+        <h2>No blog posts yet</h2>
+        <p>Click the "Create New Blog Post" button to generate your first blog post.</p>
+      </div>
+    <% } else { %>
+      <div class="blog-posts">
+        <% blogPosts.forEach(post => { %>
+          <div class="blog-post">
+            <h2><%= post.title %></h2>
+            <div class="blog-post-meta">
+              <span>Category: <%= post.category %></span>
+              <span> • </span>
+              <span>Tone: <%= post.tone %></span>
+            </div>
+            <p><%= post.markdown.substring(0, 150) %>...</p>
+            <div class="blog-post-tags">
+              <% post.tags.forEach(tag => { %>
+                <span class="tag"><%= tag %></span>
+              <% }) %>
+            </div>
+            <a href="/view/<%= post.id %>" class="view-link">Read more</a>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+</body>
+</html>

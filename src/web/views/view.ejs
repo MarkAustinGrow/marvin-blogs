@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    header {
+      margin-bottom: 30px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 20px;
+    }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #3498db;
+      text-decoration: none;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    .blog-meta {
+      color: #7f8c8d;
+      font-size: 0.9em;
+      margin-bottom: 20px;
+    }
+    .blog-meta span {
+      margin-right: 15px;
+    }
+    .blog-content {
+      margin-bottom: 30px;
+    }
+    .blog-content h2 {
+      color: #2c3e50;
+      margin-top: 30px;
+    }
+    .blog-content p {
+      margin-bottom: 20px;
+    }
+    .blog-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+    .tag {
+      background-color: #f1f1f1;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 0.8em;
+    }
+    .blog-image {
+      max-width: 100%;
+      height: auto;
+      margin: 20px 0;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/" class="back-link">← Back to Blog Posts</a>
+    <h1><%= blogPost.title %></h1>
+    <div class="blog-meta">
+      <span>Category: <%= blogPost.category %></span>
+      <span>Tone: <%= blogPost.tone %></span>
+      <% if (blogPost.created_at) { %>
+        <span>Created: <%= new Date(blogPost.created_at).toLocaleDateString() %></span>
+      <% } %>
+    </div>
+  </header>
+  
+  <main>
+    <% if (blogPost.image_url) { %>
+      <img src="<%= blogPost.image_url %>" alt="Blog post image" class="blog-image">
+    <% } %>
+    
+    <div class="blog-content">
+      <%- blogPost.html || convertMarkdownToHtml(blogPost.markdown) %>
+    </div>
+    
+    <div class="blog-tags">
+      <% blogPost.tags.forEach(tag => { %>
+        <span class="tag"><%= tag %></span>
+      <% }) %>
+    </div>
+  </main>
+</body>
+</html>
+
+<%
+function convertMarkdownToHtml(markdown) {
+  if (!markdown) return '';
+  
+  // Simple markdown to HTML conversion
+  let html = markdown
+    // Headers
+    .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+    .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+    .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+    // Bold and italic
+    .replace(/\*\*(.*)\*\*/gm, '<strong>$1</strong>')
+    .replace(/\*(.*)\*/gm, '<em>$1</em>')
+    // Links
+    .replace(/\[(.*?)\]\((.*?)\)/gm, '<a href="$2">$1</a>')
+    // Lists
+    .replace(/^\* (.*$)/gm, '<li>$1</li>')
+    .replace(/^- (.*$)/gm, '<li>$1</li>');
+  
+  // Wrap lists
+  html = html.replace(/<li>(.*)<\/li>/gm, '<ul><li>$1</li></ul>');
+  
+  // Paragraphs (lines that don't start with HTML tags)
+  html = html.replace(/^(?!<[a-z])(.*$)/gm, '<p>$1</p>');
+  
+  return html;
+}
+%>

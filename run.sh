@@ -9,7 +9,7 @@ handle_error() {
 # Start the web server in the background with auto-restart
 echo "Starting Marvin Blogger Agent web server..."
 (while true; do
-  node /app/dist/web/server.js
+  node /app/dist/src/web/server.js
   echo "Web server exited with code $?. Restarting in 5 seconds..."
   sleep 5
 done) &
@@ -31,7 +31,7 @@ while true; do
   if ! kill -0 $WEB_SERVER_PID 2>/dev/null; then
     echo "Web server is not running. Restarting..."
     (while true; do
-      node /app/dist/web/server.js
+      node /app/dist/src/web/server.js
       echo "Web server exited with code $?. Restarting in 5 seconds..."
       sleep 5
     done) &

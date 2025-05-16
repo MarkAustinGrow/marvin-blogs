@@ -19,7 +19,10 @@ export interface Tweet {
 }
 
 export interface MemoryInsight {
+  id?: string;
   content: string;
   tags: string[];
   timestamp: string;
+  type?: string;  // e.g., "tweet", "research", "thought"
+  alignment_score?: number;  // float between 0-1
 }

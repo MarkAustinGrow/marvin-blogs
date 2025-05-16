@@ -83,13 +83,18 @@ export class BloggerAgent {
    * 
    * This method orchestrates the entire blog post generation process.
    * 
+   * @param useMemoryAsSource Whether to use memory as the primary source for blog generation
    * @returns A promise that resolves to the generated blog post
    */
-  async generateBlogPost(): Promise<BlogPost> {
+  async generateBlogPost(useMemoryAsSource: boolean = true): Promise<BlogPost> {
     try {
       // Step 1: Build context
       const contextBuilder = this.container.resolve<ContextBuilder>('contextBuilder');
-      const context: BlogContext = await contextBuilder.buildContext();
+      
+      // Use memory-based context building if specified
+      const context: BlogContext = useMemoryAsSource
+        ? await contextBuilder.buildContextFromMemory(5) // Get 5 random memories
+        : await contextBuilder.buildContext();
       
       // Step 2: Compose narrative
       const composer = this.container.resolve<NarrativeComposer>('narrativeComposer');
@@ -98,6 +103,13 @@ export class BloggerAgent {
       // Step 3: Build metadata
       const metadataBuilder = this.container.resolve<MetadataBuilder>('metadataBuilder');
       const metadata = await metadataBuilder.buildMetadata(context, content);
+      
+      // Add memory references if using memory as source
+      if (useMemoryAsSource && context.memoryInsights) {
+        metadata.memory_refs = context.memoryInsights
+          .filter(memory => memory.id)
+          .map(memory => memory.id as string);
+      }
       
       // Step 4: Save and publish
       const publisher = this.container.resolve<PublisherAdapter>('publisherAdapter');

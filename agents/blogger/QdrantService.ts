@@ -2,6 +2,7 @@ import { ConfigManager } from './ConfigManager';
 import { ErrorHandler, ErrorType } from './ErrorHandler';
 import { MemoryInsight } from './types/BlogContext';
 import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * QdrantService - Handles interactions with Marvin's Memory via Qdrant
@@ -160,5 +161,174 @@ export class QdrantService {
       seen.add(key);
       return true;
     });
+  }
+
+  /**
+   * Get random memories from Qdrant
+   * 
+   * @param count The number of random memories to retrieve
+   * @returns A promise that resolves to an array of memory insights
+   */
+  async getRandomMemories(count: number = 5): Promise<MemoryInsight[]> {
+    try {
+      // Get a random scroll using a random vector
+      // This is a simple approach - in production, you might want to use a more sophisticated method
+      const randomVector = Array.from({ length: 1536 }, () => Math.random() * 2 - 1);
+      
+      // Search Qdrant with a high limit to get a diverse set of results
+      const response = await axios.post(
+        `${this.getBaseUrl()}/collections/${this.collectionName}/points/search`,
+        {
+          vector: randomVector,
+          limit: count * 5, // Get more results than needed to ensure diversity
+          with_payload: true
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      // Shuffle the results to randomize them further
+      const shuffledResults = this.shuffleArray(response.data.result);
+      
+      // Take the requested number of results
+      const selectedResults = shuffledResults.slice(0, count);
+      
+      // Transform results into MemoryInsight objects
+      return selectedResults.map((item: any) => ({
+        id: item.id || uuidv4(),
+        content: item.payload.content,
+        tags: item.payload.tags || [],
+        timestamp: item.payload.timestamp || new Date().toISOString(),
+        type: item.payload.type || 'unknown',
+        alignment_score: item.payload.alignment_score || 0.7
+      }));
+    } catch (error) {
+      await this.errorHandler.handleError(error as Error, ErrorType.MEMORY_ERROR, {
+        operation: 'getRandomMemories'
+      });
+      
+      // Return empty array as fallback
+      return [];
+    }
+  }
+
+  /**
+   * Get recent memories from Qdrant
+   * 
+   * @param days The number of days to look back
+   * @param limit The maximum number of memories to retrieve
+   * @returns A promise that resolves to an array of memory insights
+   */
+  async getRecentMemories(days: number = 7, limit: number = 10): Promise<MemoryInsight[]> {
+    try {
+      // Calculate the date 'days' days ago
+      const daysAgo = new Date();
+      daysAgo.setDate(daysAgo.getDate() - days);
+      const daysAgoIso = daysAgo.toISOString();
+      
+      // Search Qdrant for memories with timestamp >= daysAgoIso
+      // Note: This is a simplified approach. In a real implementation,
+      // you would need to use Qdrant's filtering capabilities.
+      const response = await axios.post(
+        `${this.getBaseUrl()}/collections/${this.collectionName}/points/scroll`,
+        {
+          limit: limit * 2, // Get more results than needed to account for filtering
+          with_payload: true
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      // Filter results by timestamp
+      const filteredResults = response.data.result.filter((item: any) => {
+        const timestamp = item.payload.timestamp;
+        return timestamp && timestamp >= daysAgoIso;
+      });
+      
+      // Sort by timestamp (newest first)
+      filteredResults.sort((a: any, b: any) => {
+        const aTime = a.payload.timestamp || '';
+        const bTime = b.payload.timestamp || '';
+        return bTime.localeCompare(aTime);
+      });
+      
+      // Take the requested number of results
+      const selectedResults = filteredResults.slice(0, limit);
+      
+      // Transform results into MemoryInsight objects
+      return selectedResults.map((item: any) => ({
+        id: item.id || uuidv4(),
+        content: item.payload.content,
+        tags: item.payload.tags || [],
+        timestamp: item.payload.timestamp || new Date().toISOString(),
+        type: item.payload.type || 'unknown',
+        alignment_score: item.payload.alignment_score || 0.7
+      }));
+    } catch (error) {
+      await this.errorHandler.handleError(error as Error, ErrorType.MEMORY_ERROR, {
+        operation: 'getRecentMemories'
+      });
+      
+      // Return empty array as fallback
+      return [];
+    }
+  }
+
+  /**
+   * Get memories by tags from Qdrant
+   * 
+   * @param tags The tags to search for
+   * @param limit The maximum number of memories to retrieve
+   * @returns A promise that resolves to an array of memory insights
+   */
+  async getMemoriesByTags(tags: string[], limit: number = 10): Promise<MemoryInsight[]> {
+    try {
+      if (tags.length === 0) {
+        return [];
+      }
+      
+      // Join tags into a single query string
+      const query = tags.join(', ');
+      
+      // Use the existing searchMemories method to find memories related to the tags
+      const memories = await this.searchMemories(query, limit);
+      
+      // Add IDs and other fields to the memories
+      return memories.map(memory => ({
+        ...memory,
+        id: memory.id || uuidv4(),
+        type: memory.type || 'unknown',
+        alignment_score: memory.alignment_score || 0.7
+      }));
+    } catch (error) {
+      await this.errorHandler.handleError(error as Error, ErrorType.MEMORY_ERROR, {
+        operation: 'getMemoriesByTags',
+        details: { tags }
+      });
+      
+      // Return empty array as fallback
+      return [];
+    }
+  }
+
+  /**
+   * Shuffle an array using the Fisher-Yates algorithm
+   * 
+   * @param array The array to shuffle
+   * @returns The shuffled array
+   */
+  private shuffleArray<T>(array: T[]): T[] {
+    const result = [...array];
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
   }
 }

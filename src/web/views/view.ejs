@@ -135,7 +135,7 @@
       </span>
     </div>
     
-    <% if (blogPost.status === 'published') { %>
+    <% if (blogPost.status === 'published' || blogPost.status === 'draft') { %>
       <form action="/mark-for-tweet/<%= blogPost.id %>" method="POST" style="margin-top: 10px;">
         <button type="submit" class="tweet-btn">Mark for Twitter</button>
       </form>

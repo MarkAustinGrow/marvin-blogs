@@ -116,11 +116,11 @@ app.post('/mark-for-tweet/:id', async (req, res) => {
     
     const blogPost = blogPosts[0];
     
-    // Only published posts can be marked for tweeting
-    if (blogPost.status !== 'published') {
+    // Only published or draft posts can be marked for tweeting
+    if (blogPost.status !== 'published' && blogPost.status !== 'draft') {
       return res.status(400).render('error', { 
         title: 'Invalid Operation',
-        message: 'Only published blog posts can be marked for tweeting'
+        message: 'Only published or draft blog posts can be marked for tweeting'
       });
     }
     

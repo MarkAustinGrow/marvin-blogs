@@ -191,7 +191,7 @@
             </div>
             <div class="blog-post-actions">
               <a href="/view/<%= post.id %>" class="view-link">Read more</a>
-              <% if (post.status === 'published') { %>
+              <% if (post.status === 'published' || post.status === 'draft') { %>
                 <form action="/mark-for-tweet/<%= post.id %>" method="POST" style="display: inline-block; margin-left: 10px;">
                   <button type="submit" class="tweet-btn">Mark for Twitter</button>
                 </form>

@@ -35,6 +35,11 @@ graph TD
         EH[ErrorHandler] --> SS6[SupabaseService]
     end
     
+    subgraph "Twitter Agent"
+        TA[TwitterAgent] --> SS8[SupabaseService]
+        TA --> Twitter[Twitter API]
+    end
+    
     subgraph "Data Sources"
         DB[(Supabase DB)] <--> SS1
         DB <--> SS2
@@ -42,6 +47,7 @@ graph TD
         DB <--> SS4
         DB <--> SS5
         DB <--> SS6
+        DB <--> SS8
         
         VDB[(Qdrant Vector DB)] <--> QS
         
@@ -66,6 +72,7 @@ graph TD
     subgraph "External Services"
         OpenAI
         WP
+        Twitter
     end
     
     classDef primary fill:#3498db,stroke:#2980b9,color:white;
@@ -73,12 +80,14 @@ graph TD
     classDef data fill:#f1c40f,stroke:#f39c12,color:white;
     classDef external fill:#e74c3c,stroke:#c0392b,color:white;
     classDef ui fill:#9b59b6,stroke:#8e44ad,color:white;
+    classDef twitter fill:#1da1f2,stroke:#0c85d0,color:white;
     
     class BA,CB,NC,MB,PA,AL primary;
-    class SS1,SS2,SS3,SS4,SS5,SS6,SS7,QS,CM,EH secondary;
+    class SS1,SS2,SS3,SS4,SS5,SS6,SS7,SS8,QS,CM,EH secondary;
     class DB,VDB,Tweets,Images,Character,Memory data;
-    class OpenAI,OpenAI2,WP external;
+    class OpenAI,OpenAI2,WP,Twitter external;
     class WS,UI,Cron ui;
+    class TA twitter;
 ```
 
 ## Component Descriptions
@@ -94,6 +103,7 @@ graph TD
 - **ConfigManager**: Manages configuration settings and environment variables
 - **ErrorHandler**: Provides robust error management to ensure system stability
 - **ServiceContainer**: Dependency injection container (not shown in diagram for clarity)
+- **TwitterAgent**: Monitors for blog posts marked as ready to tweet and posts them to Twitter
 
 ### Data Services
 
@@ -118,6 +128,7 @@ graph TD
 
 - **OpenAI API**: Used for generating blog content and metadata
 - **WordPress API**: Optional integration for publishing blog posts to WordPress
+- **Twitter API**: Used for posting blog content to Twitter
 
 ## Data Flow
 
@@ -128,6 +139,9 @@ graph TD
 5. MetadataBuilder creates appropriate metadata for the blog post
 6. PublisherAdapter saves the blog post to the database and optionally publishes it
 7. ActivityLogger records the activity for monitoring purposes
+8. Users can mark blog posts for Twitter sharing via the web interface
+9. The Twitter Agent queries the database for posts marked as 'ready_to_tweet'
+10. After posting to Twitter, the Twitter Agent updates the post status to 'tweeted'
 
 ## Key Features
 
@@ -137,3 +151,6 @@ graph TD
 - **Flexible Configuration**: Configurable through environment variables
 - **Web Interface**: User-friendly interface for viewing and creating blog posts
 - **Scheduled Operation**: Automatic blog post generation on a schedule
+- **Twitter Integration**: One-click marking of blog posts for Twitter sharing
+- **Status Tracking**: Visual indicators for blog post status (draft, ready-to-tweet, tweeted)
+- **Cross-Agent Communication**: Blog posts marked for Twitter are picked up by the Twitter Agent

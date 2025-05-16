@@ -35,6 +35,14 @@ Marvin's Memory is an AI-powered memory management system that stores, organizes
 - **Memory Timeline**: Track when memories were added over time
 - **Tag Analysis**: Identify the most common tags across memories
 
+### 5. Social Media Integration
+
+- **Twitter Posting**: Automatically share blog posts to Twitter
+- **Status Workflow**: Track blog posts through draft, ready-to-tweet, and tweeted statuses
+- **One-Click Sharing**: Mark any blog post for Twitter with a single click
+- **Cross-Agent Collaboration**: Blogger Agent prepares content, Twitter Agent posts it
+- **Automated Queue**: Twitter Agent monitors for posts marked as ready to tweet
+
 ## Technical Highlights
 
 - **Vector Database**: Uses Qdrant for efficient semantic search
@@ -42,6 +50,8 @@ Marvin's Memory is an AI-powered memory management system that stores, organizes
 - **Character Alignment**: Ensures all content aligns with Marvin's persona
 - **Robust Architecture**: Centralized state management and error handling
 - **Caching System**: Optimized performance with smart caching
+- **Database Integration**: Supabase database tracks blog post status for cross-agent communication
+- **Status Tracking**: Blog posts transition through draft, ready-to-tweet, and tweeted statuses
 
 ## User Interface
 
@@ -49,6 +59,8 @@ Marvin's Memory is an AI-powered memory management system that stores, organizes
 - **Responsive Design**: Works well on different screen sizes
 - **Visual Indicators**: Clear visual feedback for actions and states
 - **Error Recovery**: Graceful handling of errors with helpful messages
+- **Status Badges**: Color-coded badges show blog post status (draft, ready-to-tweet, tweeted)
+- **Action Buttons**: Contextual buttons appear based on the current state of content
 
 ## Getting Started
 
@@ -56,6 +68,7 @@ Marvin's Memory is an AI-powered memory management system that stores, organizes
 2. Use the Memory Stream tab to view all stored memories
 3. Try the Search tab to find specific information
 4. Explore the Analytics tab to gain insights into the memory database
+5. Click "Mark for Twitter" on any blog post to queue it for social media sharing
 
 ## Best Practices
 
@@ -64,3 +77,5 @@ Marvin's Memory is an AI-powered memory management system that stores, organizes
 - Use tags consistently to improve organization
 - Check the Analytics tab periodically to understand memory distribution
 - Use search with natural language questions for best results
+- Mark high-quality blog posts for Twitter to increase visibility
+- Monitor the status of blog posts to track their social media journey

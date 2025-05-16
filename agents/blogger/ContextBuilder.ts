@@ -324,11 +324,15 @@ export class ContextBuilder {
    * @returns The determined category
    */
   private determineCategory(tweets: Tweet[], memoryInsights: MemoryInsight[]): string {
-    // Extract vibe tags from tweets
-    const vibeTags = tweets.flatMap(tweet => tweet.vibe_tags || []);
+    // Extract vibe tags from tweets and filter out non-string tags
+    const vibeTags = tweets
+      .flatMap(tweet => tweet.vibe_tags || [])
+      .filter(tag => typeof tag === 'string' && tag.trim() !== '');
     
-    // Extract tags from memory insights
-    const memoryTags = memoryInsights.flatMap(insight => insight.tags || []);
+    // Extract tags from memory insights and filter out non-string tags
+    const memoryTags = memoryInsights
+      .flatMap(insight => insight.tags || [])
+      .filter(tag => typeof tag === 'string' && tag.trim() !== '');
     
     // Combine all tags
     const allTags = [...vibeTags, ...memoryTags];
@@ -339,7 +343,8 @@ export class ContextBuilder {
       'technology': ['tech', 'technology', 'ai', 'artificial intelligence', 'programming'],
       'art': ['art', 'creative', 'visual', 'aesthetic', 'design'],
       'culture': ['culture', 'society', 'social', 'politics', 'news'],
-      'personal': ['personal', 'reflection', 'life', 'experience', 'journey']
+      'personal': ['personal', 'reflection', 'life', 'experience', 'journey'],
+      'science': ['science', 'research', 'discovery', 'experiment', 'data']
     };
     
     // Count occurrences of each category
@@ -393,9 +398,14 @@ export class ContextBuilder {
    */
   private async getTweetsByTags(tags: string[], limit: number = 5): Promise<Tweet[]> {
     try {
-      if (tags.length === 0) {
+      // Filter out any non-string tags or empty arrays
+      const validTags = tags.filter(tag => typeof tag === 'string' && tag.trim() !== '');
+      
+      if (validTags.length === 0) {
         return this.getLatestTweets(limit);
       }
+      
+      console.log(`[ContextBuilder] Searching for tweets with tags: ${validTags.join(', ')}`);
       
       // This is a simplified approach. In a real implementation,
       // you would need a more sophisticated search mechanism.
@@ -408,10 +418,12 @@ export class ContextBuilder {
       
       // Filter tweets by tags
       const filteredTweets = allTweets.filter(tweet => {
-        const tweetTags = tweet.vibe_tags || [];
-        return tags.some(tag => 
-          tweetTags.some((tweetTag: string) => 
-            tweetTag.toLowerCase().includes(tag.toLowerCase())
+        const tweetTags = Array.isArray(tweet.vibe_tags) ? tweet.vibe_tags : [];
+        
+        // Make sure we only process string tags
+        return validTags.some(tag => 
+          tweetTags.some((tweetTag: any) => 
+            typeof tweetTag === 'string' && tweetTag.toLowerCase().includes(tag.toLowerCase())
           )
         );
       });
@@ -449,8 +461,12 @@ export class ContextBuilder {
    * @returns The determined category
    */
   private determineCategoryFromMemories(memoryInsights: MemoryInsight[]): string {
-    // Extract tags from memory insights
-    const memoryTags = memoryInsights.flatMap(insight => insight.tags || []);
+    // Extract tags from memory insights and filter out non-string tags
+    const memoryTags = memoryInsights
+      .flatMap(insight => insight.tags || [])
+      .filter(tag => typeof tag === 'string' && tag.trim() !== '');
+    
+    console.log(`[ContextBuilder] Determining category from tags: ${memoryTags.join(', ')}`);
     
     // Define category mappings
     const categoryMappings: Record<string, string[]> = {
@@ -458,7 +474,8 @@ export class ContextBuilder {
       'technology': ['tech', 'technology', 'ai', 'artificial intelligence', 'programming'],
       'art': ['art', 'creative', 'visual', 'aesthetic', 'design'],
       'culture': ['culture', 'society', 'social', 'politics', 'news'],
-      'personal': ['personal', 'reflection', 'life', 'experience', 'journey']
+      'personal': ['personal', 'reflection', 'life', 'experience', 'journey'],
+      'science': ['science', 'research', 'discovery', 'experiment', 'data']
     };
     
     // Count occurrences of each category

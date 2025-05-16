@@ -6,6 +6,7 @@ import { BloggerAgent } from '../../agents/blogger/BloggerAgent';
 import { BlogPost } from '../../agents/blogger/types/BlogPost';
 import { ServiceContainer } from '../../agents/blogger/ServiceContainer';
 import { SupabaseService } from '../../agents/blogger/SupabaseService';
+import { ActivityLogger } from '../../agents/blogger/ActivityLogger';
 
 // Load environment variables
 config();
@@ -94,6 +95,53 @@ app.get('/view/:id', async (req, res) => {
     res.status(500).render('error', { 
       title: 'Error',
       message: 'Error fetching blog post'
+    });
+  }
+});
+
+// Endpoint to mark a blog post for tweeting
+app.post('/mark-for-tweet/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Get blog post from database to verify it exists and is in the right state
+    const blogPosts = await supabaseService.select('blog_posts', '*', { match: { id } });
+    
+    if (blogPosts.length === 0) {
+      return res.status(404).render('error', { 
+        title: 'Not Found',
+        message: 'Blog post not found'
+      });
+    }
+    
+    const blogPost = blogPosts[0];
+    
+    // Only published posts can be marked for tweeting
+    if (blogPost.status !== 'published') {
+      return res.status(400).render('error', { 
+        title: 'Invalid Operation',
+        message: 'Only published blog posts can be marked for tweeting'
+      });
+    }
+    
+    // Update blog post status to 'ready_to_tweet'
+    await supabaseService.update(
+      'blog_posts',
+      { status: 'ready_to_tweet' },
+      { id }
+    );
+    
+    // Log the activity
+    const activityLogger = bloggerAgent['container'].resolve<ActivityLogger>('activityLogger');
+    await activityLogger.logActivity('mark_for_tweet', { blogPostId: id, title: blogPost.title }, 'blog_post');
+    
+    // Redirect back to the blog post
+    res.redirect(`/view/${id}`);
+  } catch (error) {
+    console.error('Error marking blog post for tweet:', error);
+    res.status(500).render('error', { 
+      title: 'Error',
+      message: 'Error marking blog post for tweet'
     });
   }
 });

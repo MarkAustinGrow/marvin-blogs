@@ -11,6 +11,6 @@ export interface BlogPost {
   character_id: string;
   post_url?: string;
   created_at?: string;
-  status: 'draft' | 'published' | 'archived';
+  status: 'draft' | 'published' | 'ready_to_tweet' | 'tweeted' | 'archived';
   version: number;
 }

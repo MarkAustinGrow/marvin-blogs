@@ -60,6 +60,34 @@
       font-size: 0.9em;
       margin-bottom: 10px;
     }
+    .status {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 0.8em;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+    .status.published {
+      background-color: #2ecc71;
+      color: white;
+    }
+    .status.ready-to-tweet {
+      background-color: #3498db;
+      color: white;
+    }
+    .status.tweeted {
+      background-color: #9b59b6;
+      color: white;
+    }
+    .status.archived {
+      background-color: #95a5a6;
+      color: white;
+    }
+    .status.draft {
+      background-color: #f39c12;
+      color: white;
+    }
     .blog-post-tags {
       display: flex;
       flex-wrap: wrap;
@@ -123,6 +151,19 @@
               <span>Category: <%= post.category %></span>
               <span> • </span>
               <span>Tone: <%= post.tone %></span>
+              <div>
+                <% if (post.status === 'published') { %>
+                  <span class="status published">Published</span>
+                <% } else if (post.status === 'ready_to_tweet') { %>
+                  <span class="status ready-to-tweet">Ready to Tweet</span>
+                <% } else if (post.status === 'tweeted') { %>
+                  <span class="status tweeted">Tweeted</span>
+                <% } else if (post.status === 'archived') { %>
+                  <span class="status archived">Archived</span>
+                <% } else { %>
+                  <span class="status draft">Draft</span>
+                <% } %>
+              </div>
             </div>
             <p><%= post.markdown.substring(0, 150) %>...</p>
             <div class="blog-post-tags">

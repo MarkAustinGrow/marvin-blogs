@@ -13,7 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 export class QdrantService {
   private host: string;
   private port: string;
-  private collectionName: string = 'marvin_memories';
+  private collectionName: string = 'marvin_memory';
   private openaiApiKey: string;
   private errorHandler: ErrorHandler;
   

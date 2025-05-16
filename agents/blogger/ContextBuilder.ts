@@ -104,17 +104,31 @@ export class ContextBuilder {
   }
   
   /**
-   * Get the latest image from the images table
+   * Get a random image from the images table
    * 
    * @returns A promise that resolves to an image object or undefined if no image is found
    */
   private async getLatestImage(): Promise<BlogContext['image'] | undefined> {
     try {
-      // Use a simple query to get the latest image
+      // Get all image IDs
+      const imageIds = await this.supabaseService.select(
+        'images',
+        'id'
+      );
+      
+      if (imageIds.length === 0) {
+        return undefined;
+      }
+      
+      // Select a random image ID
+      const randomIndex = Math.floor(Math.random() * imageIds.length);
+      const randomId = imageIds[randomIndex].id;
+      
+      // Get the specific image by ID
       const images = await this.supabaseService.select(
         'images',
         'image_url, prompt_id, created_at',
-        { limit: 1 }
+        { match: { id: randomId } }
       );
       
       if (images.length === 0) {

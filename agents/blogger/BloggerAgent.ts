@@ -188,12 +188,15 @@ export class BloggerAgent {
   /**
    * Run the full blog post generation and tweet generation process
    * 
+   * @param useMemoryAsSource Whether to use memory as the primary source for blog generation (default: true)
    * @returns A promise that resolves when the process is complete
    */
-  async run(): Promise<void> {
+  async run(useMemoryAsSource: boolean = true): Promise<void> {
     try {
+      console.log(`Generating blog post using ${useMemoryAsSource ? 'memory' : 'tweets'} as primary source...`);
+      
       // Generate blog post
-      const blogPost = await this.generateBlogPost();
+      const blogPost = await this.generateBlogPost(useMemoryAsSource);
       console.log(`Blog post generated: ${blogPost.title}`);
       
       // Generate tweets

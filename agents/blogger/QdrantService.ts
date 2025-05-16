@@ -170,12 +170,14 @@ export class QdrantService {
    * @returns A promise that resolves to an array of memory insights
    */
   async getRandomMemories(count: number = 5): Promise<MemoryInsight[]> {
+    console.log(`[QdrantService] Getting ${count} random memories from Qdrant...`);
     try {
       // Get a random scroll using a random vector
       // This is a simple approach - in production, you might want to use a more sophisticated method
       const randomVector = Array.from({ length: 1536 }, () => Math.random() * 2 - 1);
       
       // Search Qdrant with a high limit to get a diverse set of results
+      console.log(`[QdrantService] Searching Qdrant collection ${this.collectionName} at ${this.getBaseUrl()}...`);
       const response = await axios.post(
         `${this.getBaseUrl()}/collections/${this.collectionName}/points/search`,
         {
@@ -190,6 +192,8 @@ export class QdrantService {
         }
       );
       
+      console.log(`[QdrantService] Received ${response.data.result.length} results from Qdrant`);
+      
       // Shuffle the results to randomize them further
       const shuffledResults = this.shuffleArray(response.data.result);
       
@@ -197,7 +201,7 @@ export class QdrantService {
       const selectedResults = shuffledResults.slice(0, count);
       
       // Transform results into MemoryInsight objects
-      return selectedResults.map((item: any) => ({
+      const memories = selectedResults.map((item: any) => ({
         id: item.id || uuidv4(),
         content: item.payload.content,
         tags: item.payload.tags || [],
@@ -205,12 +209,19 @@ export class QdrantService {
         type: item.payload.type || 'unknown',
         alignment_score: item.payload.alignment_score || 0.7
       }));
+      
+      console.log(`[QdrantService] Returning ${memories.length} random memories`);
+      console.log(`[QdrantService] Memory tags: ${memories.flatMap(m => m.tags).join(', ')}`);
+      
+      return memories;
     } catch (error) {
+      console.error(`[QdrantService] Error getting random memories: ${(error as Error).message}`);
       await this.errorHandler.handleError(error as Error, ErrorType.MEMORY_ERROR, {
         operation: 'getRandomMemories'
       });
       
       // Return empty array as fallback
+      console.log(`[QdrantService] Returning empty array as fallback`);
       return [];
     }
   }

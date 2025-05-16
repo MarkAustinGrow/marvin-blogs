@@ -78,9 +78,17 @@ export class ContextBuilder {
    * @returns A promise that resolves to a BlogContext object
    */
   async buildContextFromMemory(memoryCount: number = 5): Promise<BlogContext> {
+    console.log(`[ContextBuilder] Building context from memory with ${memoryCount} memories...`);
     try {
       // Get random memories
+      console.log(`[ContextBuilder] Getting random memories from QdrantService...`);
       const memoryInsights = await this.qdrantService.getRandomMemories(memoryCount);
+      console.log(`[ContextBuilder] Received ${memoryInsights.length} memory insights`);
+      
+      if (memoryInsights.length === 0) {
+        console.log(`[ContextBuilder] No memories found, falling back to tweet-based context`);
+        return this.buildContext();
+      }
       
       // Get a random image
       const image = await this.getLatestImage();
@@ -90,17 +98,21 @@ export class ContextBuilder {
       
       // Extract tags from memories to use for tweets
       const memoryTags = memoryInsights.flatMap(memory => memory.tags || []);
+      console.log(`[ContextBuilder] Memory tags: ${memoryTags.join(', ')}`);
       
       // Get tweets based on memory tags (if available)
       const tweets = memoryTags.length > 0
         ? await this.getTweetsByTags(memoryTags)
         : await this.getLatestTweets(3); // Fallback to latest tweets
       
+      console.log(`[ContextBuilder] Found ${tweets.length} tweets related to memory tags`);
+      
       // Determine category based on memory insights
       const category = this.determineCategoryFromMemories(memoryInsights);
+      console.log(`[ContextBuilder] Determined category: ${category}`);
       
       // Build and return context
-      return {
+      const context = {
         tweets,
         image,
         memoryInsights,
@@ -108,12 +120,17 @@ export class ContextBuilder {
         category,
         character
       };
+      
+      console.log(`[ContextBuilder] Successfully built context from memory with ${memoryInsights.length} memories and ${tweets.length} tweets`);
+      return context;
     } catch (error) {
+      console.error(`[ContextBuilder] Error building context from memory: ${(error as Error).message}`);
       await this.errorHandler.handleError(error as Error, ErrorType.UNKNOWN, {
         operation: 'buildContextFromMemory'
       });
       
       // Return a minimal context as fallback
+      console.log(`[ContextBuilder] Returning fallback context`);
       return this.createFallbackContext();
     }
   }

@@ -185,9 +185,11 @@
             </div>
             <p><%= post.markdown.substring(0, 150) %>...</p>
             <div class="blog-post-tags">
-              <% post.tags.forEach(tag => { %>
-                <span class="tag"><%= tag %></span>
-              <% }) %>
+              <% if (post.tags && Array.isArray(post.tags)) { %>
+                <% post.tags.forEach(tag => { %>
+                  <span class="tag"><%= tag %></span>
+                <% }) %>
+              <% } %>
             </div>
             <div class="blog-post-actions">
               <a href="/view/<%= post.id %>" class="view-link">Read more</a>

@@ -168,3 +168,63 @@ If you encounter issues:
 5. Rebuild the container:
    ```bash
    docker-compose up -d --build
+   ```
+
+### Common Issues and Solutions
+
+#### Qdrant Connection Issues
+
+If you see errors like `connect ECONNREFUSED` or `connect ETIMEDOUT` when trying to connect to Qdrant, it may be due to DNS resolution issues within the Docker container.
+
+**Solution**: Add an `extra_hosts` section to your `docker-compose.yml` file to ensure proper hostname resolution:
+
+```yaml
+services:
+  marvin-blogger:
+    # ... other configuration ...
+    extra_hosts:
+      - "qdrant.marvn.club:172.236.2.45"  # Replace with your Qdrant server's actual IP
+```
+
+This ensures the container can properly resolve the Qdrant hostname to the correct IP address.
+
+#### Template Rendering Errors
+
+If you see errors like `Cannot read properties of null (reading 'forEach')` in the logs, it may be due to null values in the database that the templates are trying to access.
+
+**Solution**: Add null checks in the EJS templates. For example, for the `post.tags` issue:
+
+```ejs
+<div class="blog-post-tags">
+  <% if (post.tags && Array.isArray(post.tags)) { %>
+    <% post.tags.forEach(tag => { %>
+      <span class="tag"><%= tag %></span>
+    <% }) %>
+  <% } %>
+</div>
+```
+
+This prevents the template from trying to call methods on null values.
+
+#### Local Changes Conflict with Git Pull
+
+If you've made local changes to files on the server and then try to pull updates from GitHub, you might see an error like:
+
+```
+error: Your local changes to the following files would be overwritten by merge:
+        docker-compose.yml
+Please commit your changes or stash them before you merge.
+```
+
+**Solution**: Either stash your local changes or force the pull to overwrite them:
+
+```bash
+# Option 1: Stash local changes
+git stash
+git pull
+git stash pop  # Apply stashed changes back (may cause conflicts)
+
+# Option 2: Force pull to overwrite local changes
+git fetch
+git reset --hard origin/master
+```

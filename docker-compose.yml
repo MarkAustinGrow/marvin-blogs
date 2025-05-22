@@ -16,6 +16,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    extra_hosts:
+      - "qdrant.marvn.club:172.236.2.45"
     logging:
       driver: "json-file"
       options:
